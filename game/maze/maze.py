@@ -3,10 +3,11 @@ from game.player import Target
 from numpy import random
 
 class Maze(Page):
-    def __init__(self, engine, map):
+    def __init__(self, engine, map, tilemap):
         super().__init__(engine)
         self.map = map
-        self.cellsize = 250
+        self.tilemap = tilemap
+        self.cellsize = engine.cellsize
         self.player = engine.player
         self.target = None
         self.start = [0,0]
@@ -109,14 +110,18 @@ class Maze(Page):
     def draw_maze(self):
         for y in range(len(self.map)):
             for x in range(len(self.map[0])):              
-                if(self.map[y][x] == 1):
                     renderx = (x * self.cellsize - self.player.X + self.engine.screen.get_width() // 2)
-                    rendery = (y * self.cellsize - self.player.Y + self.engine.screen.get_height() // 2)               
-                    self.pygame.draw.rect(self.engine.screen, self.engine.config.light_gray, (renderx, rendery, self.cellsize, self.cellsize))
+                    rendery = (y * self.cellsize - self.player.Y + self.engine.screen.get_height() // 2)
+                    if(renderx + self.cellsize < 0 or rendery + self.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+                        continue
+                    self.screen.blit(self.tilemap[y][x] if self.map[y][x] == 0 else self.engine.floor, (renderx, rendery))
+                    # self.pygame.draw.rect(self.engine.screen, self.engine.config.light_gray, (renderx, rendery, self.cellsize, self.cellsize))
     
     def draw_target(self):
         renderx = (self.target.X - self.player.X + self.engine.screen.get_width() // 2)
         rendery = (self.target.Y - self.player.Y + self.engine.screen.get_height() // 2)
+        if(renderx + self.target.R < 0 or rendery + self.target.R < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+            return
         sprite = self.target.sprites[self.target.open].convert_alpha()
         scaled = self.pygame.transform.scale(sprite, (self.target.R * 2, self.target.R * 2))
         self.screen.blit(scaled, (renderx - self.target.R, rendery - self.target.R))
@@ -132,10 +137,9 @@ class Maze(Page):
             y = trail[1]
             renderx = (x - self.player.X + self.engine.screen.get_width() // 2)
             rendery = (y - self.player.Y + self.engine.screen.get_height() // 2)
-            sprite = self.engine.paint
-            scaled = self.pygame.transform.scale(sprite, (self.player.R * 2, self.player.R * 2))
-
-            self.screen.blit(scaled, (renderx - self.player.R, rendery - self.player.R))
+            if(renderx + self.cellsize < 0 or rendery + self.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+                continue
+            self.screen.blit(self.engine.paint, (renderx - self.player.R, rendery - self.player.R))
 
     def move_player(self):
         keys = self.pygame.key.get_pressed()

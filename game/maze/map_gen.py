@@ -5,6 +5,7 @@ class MapGen(Page):
     def __init__(self, engine):
         super().__init__(engine)
         self.cd = 6
+        self.tilemap = []
         self.newMap(self.engine.mapX, self.engine.mapY)
         
     def render(self):
@@ -23,7 +24,7 @@ class MapGen(Page):
                 #     toprint += "],"
                 #     print(toprint)
                 # print("")
-                self.engine.page = self.engine.swap_to_maze(self.generated)
+                self.engine.page = self.engine.swap_to_maze(self.generated, self.tilemap)
 
         title = font.render(gen_title, True, (0, 0, 0))
         self.engine.screen.blit(title, (self.engine.screen.get_width() // 2 - title.get_rect().width // 2, 110))
@@ -71,8 +72,9 @@ class MapGen(Page):
     def newMap(self, width, height) -> list:
         a_width = width * 2 + 1
         a_height = height * 2 + 1
-        dirs = [[0, 1], [-1, 0], [0, -1], [1, 0]]
+        dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]]
         self.generated = [[0 for x in range(a_width)] for u in range(a_height)]
+        self.tilemap = [[0 for x in range(a_width)] for u in range(a_height)]
         self.done = 0
         self.needed = width * height
 
@@ -85,7 +87,7 @@ class MapGen(Page):
         targetswapped = False
 
         while(self.done < self.needed - 1):
-            print("main loop")
+            #print("main loop")
             startX = random.randint(0, width)
             startY = random.randint(0, height)
 
@@ -93,21 +95,21 @@ class MapGen(Page):
             startY = 2 * startY + 1
 
             while((startX == targetX and startY == targetY) or self.generated[startY][startX] == 1):
-                print("starting point")
+                #print("starting point")
                 if(self.needed - self.done < 4):
                     for y in range(0, height):
                         for x in range(0, width):
                             if(self.generated[2 * y + 1][2 * x + 1] == 0):
                                 startX = x
                                 startY = y
-                                print("new start: " + str(startX) + ", " + str(startY))
+                                #print("new start: " + str(startX) + ", " + str(startY))
                 else:                   
                     startX = random.randint(0, width)
                     startY = random.randint(0, height)
 
                 startX = 2 * startX + 1
                 startY = 2 * startY + 1
-                print("ah start: " + str(startX) + ", " + str(startY))      
+                #print("ah start: " + str(startX) + ", " + str(startY))      
 
             self.generated[startY][startX] = 2
             stack = []
@@ -116,7 +118,7 @@ class MapGen(Page):
             nextY = startY
 
             while((nextX != targetX or nextY != targetY) and self.generated[nextY][nextX] != 1):
-                print("random walk")
+                #print("random walk")
 
                 if(len(stack) >= max(width, height) and not targetswapped):
                     targetX = nextX
@@ -128,7 +130,7 @@ class MapGen(Page):
 
                 if(len(stack) > 0):
                     if((stack[len(stack) - 1][2] + 2) % 4 == nextmove):
-                        print("don't walk where you came from")
+                        #print("don't walk where you came from")
                         continue
 
                 nextX = startX + 2 * dirs[nextmove][1]
@@ -153,7 +155,7 @@ class MapGen(Page):
                         startY = nextY
                     elif(self.generated[nextY][nextX] == 2):
                         while(startX != nextX or startY != nextY):
-                            print("backtrack")
+                            #print("backtrack")
                             self.generated[startY][startX] = 0
                             past = stack.pop()
                             self.generated[startY - dirs[past[2]][0]][startX - dirs[past[2]][1]] = 0
@@ -172,6 +174,19 @@ class MapGen(Page):
             self.done += len(stack)
 
         self.done += 1
+
+        for y in range(0, a_height):
+            for x in range(0, a_width):
+                if(self.generated[y][x] == 1):
+                    continue
+                wall = [0, 0, 0, 0]
+                for dir in dirs:
+                    if(y + dir[1] >= 0 and y + dir[1] < a_height and x + dir[0] >= 0 and x + dir[0] < a_width):
+                        if(self.generated[y + dir[1]][x + dir[0]] == 0):
+                            wall[dirs.index(dir)] = 1
+                self.tilemap[y][x] = self.engine.walltiles[(wall[0], wall[1], wall[2], wall[3])]
+                            
+ 
 
         for countdown in range(0, 5):
             self.cd = 5 - countdown

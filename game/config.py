@@ -9,3 +9,4 @@ class Config:
         self.sizeY = 16
         self.player_speed = 8
         self.player_radius = 45
+        self.cellsize = 250

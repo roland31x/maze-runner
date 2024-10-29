@@ -71,13 +71,13 @@ class Score(Page):
         sprite = self.engine.player.sprites[2][0].convert_alpha()
         scaled = self.pygame.transform.scale(sprite, (size, size))
         self.screen.blit(scaled, (offset_x + self.start[0] * size, offset_y + self.start[1] * size, size, size))
-        print("Drawing player at " + str(self.start[0]) + ", " + str(self.start[1]))
+        #print("Drawing player at " + str(self.start[0]) + ", " + str(self.start[1]))
 
     def draw_target(self, size, offset_x, offset_y):
         sprite = self.engine.target.sprites[1].convert_alpha()
         scaled = self.pygame.transform.scale(sprite, (size, size))
         self.screen.blit(scaled, (offset_x + self.end[0] * size, offset_y + self.end[1] * size, size, size))
-        print("Drawing target at " + str(self.end[0]) + ", " + str(self.end[1]))
+        #print("Drawing target at " + str(self.end[0]) + ", " + str(self.end[1]))
 
 
     def handle_event(self, event):
