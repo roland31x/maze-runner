@@ -38,14 +38,14 @@ class Score(Page):
             cell_height = max_height // len(self.maze)
             cell_width = max_width // len(self.maze[0])
 
-            if(cell_height > cell_width):
-                offset_x = self.engine.screen.get_width() / 2 - max_width / 2
-                offset_y = self.engine.screen.get_height() / 2 - (len(self.maze) * cell_width) / 2
-                cell_width = cell_height
-            else:
+            if(cell_height < cell_width):
                 offset_x = self.engine.screen.get_width() / 2 - (len(self.maze[0]) * cell_height) / 2
-                offset_y = self.engine.screen.get_height() / 2 - max_height / 2
-                cell_height = cell_width
+                offset_y = self.engine.screen.get_height() / 2 - (len(self.maze) * cell_height) / 2
+            else:
+                offset_x = self.engine.screen.get_width() / 2 - (len(self.maze[0]) * cell_width) / 2
+                offset_y = self.engine.screen.get_height() / 2 - (len(self.maze) * cell_width) / 2
+
+            cell_height = min(cell_height, cell_width)
 
             offset_y += 20
 

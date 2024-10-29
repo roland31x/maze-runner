@@ -53,12 +53,14 @@ class MapGen(Page):
         cell_height = max_height // len(self.generated)
         cell_width = max_width // len(self.generated[0])
 
-        if(cell_height > cell_width):
-            offset_x = self.engine.screen.get_width() / 2 - max_width / 2
-            offset_y = self.engine.screen.get_height() / 2 - (len(self.generated) * cell_width) / 2
-        else:
+        if(cell_height < cell_width):
             offset_x = self.engine.screen.get_width() / 2 - (len(self.generated[0]) * cell_height) / 2
-            offset_y = self.engine.screen.get_height() / 2 - max_height / 2
+            offset_y = self.engine.screen.get_height() / 2 - (len(self.generated) * cell_height) / 2
+        else:
+            offset_x = self.engine.screen.get_width() / 2 - (len(self.generated[0]) * cell_width) / 2
+            offset_y = self.engine.screen.get_height() / 2 - (len(self.generated) * cell_width) / 2
+
+        cell_height = min(cell_height, cell_width)
 
         for y in range(len(self.generated)):
             for x in range(len(self.generated[y])):
@@ -75,6 +77,8 @@ class MapGen(Page):
         dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]]
         self.generated = [[0 for x in range(a_width)] for u in range(a_height)]
         self.tilemap = [[0 for x in range(a_width)] for u in range(a_height)]
+
+        print(len(self.generated))
         self.done = 0
         self.needed = width * height
 
