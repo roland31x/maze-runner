@@ -13,7 +13,7 @@ class Score(Page):
         self.engine.screen.fill(self.engine.config.dark_gray)
 
         font = self.pygame.font.SysFont(None, 65)
-        title = font.render('Game Over', True, (0, 0, 0))
+        title = font.render('Game Over', True, self.engine.config.light_gray)
         self.engine.screen.blit(title, (self.engine.screen.get_width() // 2 - title.get_rect().width // 2, 60))
 
         minutes = self.score // 60000
@@ -23,13 +23,13 @@ class Score(Page):
         timestr = str(minutes) + ":" if minutes > 0 else "" + str(seconds) + "." + str(milliseconds)
 
         font = self.pygame.font.SysFont(None, 45)
-        score_text = font.render('Time: ' + timestr, True, (0, 0, 0))
+        score_text = font.render('Time: ' + timestr, True, self.engine.config.light_gray)
         self.engine.screen.blit(score_text, (self.engine.screen.get_width() // 2 - score_text.get_rect().width // 2, 120))
 
         self.draw_maze()
 
         font = self.pygame.font.SysFont(None, 30)
-        score_text = font.render('Press ENTER to return to the main menu', True, (0, 0, 0))
+        score_text = font.render('Press ENTER to return to the main menu', True, self.engine.config.light_gray)
         self.engine.screen.blit(score_text, (self.engine.screen.get_width() // 2 - score_text.get_rect().width // 2, 600))
 
     def draw_maze(self):
@@ -53,11 +53,9 @@ class Score(Page):
 
             for y in range(len(self.maze)):
                 for x in range(len(self.maze[y])):
-                    color = (30, 30, 30)  # Default to black for 0
+                    color = self.engine.config.black  # Default to black for 0
                     if self.maze[y][x] == 1:
-                        color = (180, 180, 180)  # Blue for 1
-                    elif self.maze[y][x] == 2:
-                        color = (255, 0, 0)  # Red for 2
+                        color = self.engine.config.light_gray  # Blue for 1
                     self.pygame.draw.rect(self.engine.screen, color, (offset_x + x * cell_height, offset_y + y * cell_height, cell_height, cell_height))
 
             # for trail in self.trails:

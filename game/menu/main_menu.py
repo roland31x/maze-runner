@@ -10,7 +10,7 @@ class MainMenu(Page):
         self.engine.screen.fill(self.engine.config.dark_gray)
 
         font = self.pygame.font.SysFont(None, 74)
-        title_text = font.render('Maze Runner', True, self.engine.config.black)
+        title_text = font.render('Maze Runner', True, self.engine.config.light_gray)
         title_rect = title_text.get_rect(center=(self.engine.screen.get_width() // 2, 100))
         self.engine.screen.blit(title_text, title_rect)
 
@@ -57,11 +57,9 @@ class MainMenu(Page):
 
         for y in range(len(self.generated)):
             for x in range(len(self.generated[y])):
-                color = (30, 30, 30)  # Default to black for 0
+                color = self.engine.config.black  # Default to black for 0  
                 if self.generated[y][x] == 1:
-                    color = (180, 180, 180)  # Blue for 1
-                elif self.generated[y][x] == 2:
-                    color = (255, 0, 0)  # Red for 2
+                    color = self.engine.config.light_gray  # h for 1
                 self.pygame.draw.rect(self.engine.screen, color, (offset_x + x * cell_height, offset_y + y * cell_height, cell_height, cell_height))
 
     def showcase(self):

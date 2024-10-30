@@ -43,10 +43,10 @@ class Player:
         self.last_dir = lastdir
 
 class Target:
-    def __init__(self, X, Y):
+    def __init__(self, X, Y, R):
         self.X = X
         self.Y = Y
-        self.R = 60
+        self.R = R
         self.open = 1
         self.sprites = [ 
             pygame.image.load('game/models/trapdoor_closed.png'),

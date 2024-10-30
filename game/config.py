@@ -1,12 +1,13 @@
 class Config:
     def __init__(self) -> None:       
         self.white = (255, 255, 255)
-        self.black = (0, 0, 0)
-        self.light_gray = (160, 160, 160)
-        self.dark_gray = (120, 120, 120)
+        self.black = (20, 20, 20)
+        self.light_gray = (200,200,200)
+        self.dark_gray = (59, 59, 82)
         ##############################
         self.sizeX = 32
         self.sizeY = 32
         self.player_speed = 8
         self.player_radius = 45
+        self.target_radius = 45
         self.cellsize = 250

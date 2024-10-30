@@ -99,7 +99,7 @@ class Maze(Page):
         targetX = (targetX * 2 + 1) * self.cellsize + self.cellsize / 2
         targetY = (targetY * 2 + 1) * self.cellsize + self.cellsize / 2
 
-        self.engine.target = Target(targetX, targetY)
+        self.engine.target = Target(targetX, targetY, self.engine.config.target_radius) 
         self.target = self.engine.target
 
         

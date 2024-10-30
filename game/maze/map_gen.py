@@ -26,7 +26,7 @@ class MapGen(Page):
                 # print("")
                 self.engine.page = self.engine.swap_to_maze(self.generated, self.tilemap)
 
-        title = font.render(gen_title, True, (0, 0, 0))
+        title = font.render(gen_title, True, self.engine.config.light_gray)
         self.engine.screen.blit(title, (self.engine.screen.get_width() // 2 - title.get_rect().width // 2, 110))
 
         # Calculate the loading bar dimensions
@@ -64,9 +64,9 @@ class MapGen(Page):
 
         for y in range(len(self.generated)):
             for x in range(len(self.generated[y])):
-                color = (30, 30, 30)  # Default to black for 0
+                color = self.engine.config.black  # Default to black for 0
                 if self.generated[y][x] == 1:
-                    color = (180, 180, 180)  # Blue for 1
+                    color = self.engine.config.light_gray  # Blue for 1
                 elif self.generated[y][x] == 2:
                     color = (255, 0, 0)  # Red for 2
                 self.pygame.draw.rect(self.engine.screen, color, (offset_x + x * cell_height, offset_y + y * cell_height, cell_height, cell_height))    

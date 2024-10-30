@@ -17,7 +17,7 @@ class Engine:
         self.page : Page = None
         self.pygame = None
         self.player = Player("Player", self.config.player_speed, self.config.player_radius)
-        self.target = Target(self.mapX - 1, self.mapY - 1)       
+        self.target = Target(self.mapX - 1, self.mapY - 1, self.config.target_radius)       
 
     def start(self):     
         pygame.init()
