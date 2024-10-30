@@ -20,7 +20,7 @@ class Score(Page):
         seconds = (self.score - (minutes * 60000)) // 1000
         milliseconds = self.score - (minutes * 60000) - (seconds * 1000)
 
-        timestr = str(minutes) + ":" if minutes > 0 else "" + str(seconds) + "." + str(milliseconds)
+        timestr = (str(minutes) + ":" if minutes > 0 else "") + ("0" + str(seconds) if seconds > 10 and minutes > 0 else str(seconds)) + "." + str(milliseconds)
 
         font = self.pygame.font.SysFont(None, 45)
         score_text = font.render('Time: ' + timestr, True, self.engine.config.light_gray)

@@ -78,7 +78,7 @@ class MapGen(Page):
         self.generated = [[0 for x in range(a_width)] for u in range(a_height)]
         self.tilemap = [[0 for x in range(a_width)] for u in range(a_height)]
 
-        print(len(self.generated))
+        #print(len(self.generated))
         self.done = 0
         self.needed = width * height
 
