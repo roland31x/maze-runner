@@ -8,6 +8,5 @@ class Config:
         self.sizeX = 3
         self.sizeY = 3
         self.player_speed = 8
-        self.player_radius = 45
-        self.target_radius = 45
+        self.obj_radius = 45
         self.cellsize = 250

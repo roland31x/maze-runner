@@ -16,8 +16,8 @@ class Engine:
         self.mapY = self.config.sizeY
         self.page : Page = None
         self.pygame = None
-        self.player = Player("Player", self.config.player_speed, self.config.player_radius)
-        self.target = Target(self.mapX - 1, self.mapY - 1, self.config.target_radius)       
+        self.player = Player("Player", self.config.player_speed, self.config.obj_radius)
+        self.target = Target(self.mapX - 1, self.mapY - 1, self.config.obj_radius)       
 
     def start(self):     
         pygame.init()
@@ -26,6 +26,7 @@ class Engine:
         self.pygame = pygame
         self.paint = self.pygame.transform.scale(pygame.image.load('game/models/paint.png').convert_alpha(), (self.player.R * 2, self.player.R * 2))
         self.floor = self.pygame.transform.scale(pygame.image.load('game/models/floor.png').convert_alpha(), (self.cellsize, self.cellsize))
+        self.selected_sprite = pygame.image.load('game/models/selected.png')
         self.walltiles = self.wall_tile_init()
         self.page = self.swap_to_main_menu()
         self.running = True
