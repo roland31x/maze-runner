@@ -92,8 +92,8 @@ class MapGen(Page):
 
         while(self.done < self.needed - 1):
             #print("main loop")
-            startX = random.randint(0, width)
-            startY = random.randint(0, height)
+            startX = random.randint(0, width - 1)
+            startY = random.randint(0, height - 1)
 
             startX = 2 * startX + 1
             startY = 2 * startY + 1
@@ -188,8 +188,8 @@ class MapGen(Page):
                     if(y + dir[1] >= 0 and y + dir[1] < a_height and x + dir[0] >= 0 and x + dir[0] < a_width):
                         if(self.generated[y + dir[1]][x + dir[0]] == 0):
                             wall[dirs.index(dir)] = 1
-                self.tilemap[y][x] = self.engine.walltiles[(wall[0], wall[1], wall[2], wall[3])]
-                            
+                sprite = self.engine.walltiles[(wall[0], wall[1], wall[2], wall[3])].convert_alpha()
+                self.tilemap[y][x] = sprite         
  
 
         for countdown in range(0, 5):

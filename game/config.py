@@ -1,5 +1,8 @@
 class Config:
     def __init__(self) -> None:       
+        self.default()
+
+    def default(self):
         self.white = (255, 255, 255)
         self.black = (20, 20, 20)
         self.light_gray = (200,200,200)

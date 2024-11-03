@@ -7,26 +7,29 @@ from .config import Config
 
 class Engine:
     def __init__(self):
+        self.page : Page = None
         self.config = Config()
+        self.default()
+
+    def default(self):
+        self.config.default()
         self.player = 0
         self.score = 0
         self.level = 0
-        self.cellsize = self.config.cellsize
         self.mapX = self.config.sizeX
         self.mapY = self.config.sizeY
-        self.page : Page = None
-        self.pygame = None
-        self.player = Player("Player", self.config.player_speed, self.config.obj_radius)
-        self.target = Target(self.mapX - 1, self.mapY - 1, self.config.obj_radius)       
+        self.player = Player("Player", self.config.player_speed, self.config)
+        self.target = Target(self.mapX - 1, self.mapY - 1, self.config)
 
     def start(self):     
         pygame.init()
         self.screen = pygame.display.set_mode((1280, 720))
         self.clock = pygame.time.Clock()
         self.pygame = pygame
-        self.paint = self.pygame.transform.scale(pygame.image.load('game/models/paint.png').convert_alpha(), (self.player.R * 2, self.player.R * 2))
-        self.floor = self.pygame.transform.scale(pygame.image.load('game/models/floor.png').convert_alpha(), (self.cellsize, self.cellsize))
-        self.selected_sprite = pygame.image.load('game/models/selected.png')
+        self.paint = pygame.image.load('game/models/paint.png').convert_alpha()
+        self.floor = pygame.image.load('game/models/floor.png').convert_alpha()
+        self.selected_sprite = pygame.image.load('game/models/selected.png').convert_alpha()
+        self.map_overlay = pygame.image.load('game/models/map_overlay.png').convert_alpha()
         self.walltiles = self.wall_tile_init()
         self.page = self.swap_to_main_menu()
         self.running = True
@@ -72,7 +75,7 @@ class Engine:
                 for l in range(0,2):
                     for r in range(0,2):
                         if(os.path.exists('game/models/wall_' + str(u) + '_' + str(r) + '_' + str(d) + '_' + str(l) + '.png')):
-                            walltiles[(u,r,d,l)] = self.pygame.transform.scale(pygame.image.load('game/models/wall_' + str(u) + '_' + str(r) + '_' + str(d) + '_' + str(l) + '.png').convert_alpha(), (self.cellsize, self.cellsize))
+                            walltiles[(u,r,d,l)] = pygame.image.load('game/models/wall_' + str(u) + '_' + str(r) + '_' + str(d) + '_' + str(l) + '.png').convert_alpha()
                             
         return walltiles    
         

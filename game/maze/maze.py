@@ -1,15 +1,16 @@
 from game.page import Page
-from game.player import Target
+from game.player import Target, ConfigObjectDrawable
 from numpy import random
-from game.maze.energy_drink import Energy_Drink
-from game.maze.key import Key
+from game.maze.items.energy_drink import Energy_Drink
+from game.maze.items.key import Key
+from game.maze.items.magnifying_glass import Magnifying_Glass
+from game.maze.items.maze_map import Maze_Map
 
 class Maze(Page):
     def __init__(self, engine, map, tilemap):
         super().__init__(engine)
         self.map = map
         self.tilemap = tilemap
-        self.cellsize = engine.cellsize
         self.player = engine.player
         self.target = None
         self.start = [0,0]
@@ -18,13 +19,16 @@ class Maze(Page):
         self.finished = False
         self.trails = []
         self.items = [
-            Key(0, 0, engine.config.obj_radius),
-            Energy_Drink(0, 0, engine.config.obj_radius)
+            Key(0, 0, engine.config),
+            Energy_Drink(0, 0, engine.config),
+            Magnifying_Glass(0, 0, engine.config),
+            Maze_Map(0, 0, engine.config)
         ]
-
+        self.engine.default()
         self.picked_up_items = []
         self.available_trails = 2 * max(len(map), len(map[0]))
         self.max_trails = 2 * max(len(map), len(map[0]))
+        self.draw_mini_map = False
 
         self.start_game()
         self.generate_items()
@@ -41,6 +45,36 @@ class Maze(Page):
         
         self.draw_keyboard_legend()
         self.draw_items_overlay()
+        if(self.draw_mini_map):
+            self.draw_mini_map_overlay()
+
+    def draw_mini_map_overlay(self):
+        overlay_sprite = self.engine.map_overlay
+        scaled = self.pygame.transform.scale(overlay_sprite, (700, 700))
+        self.screen.blit(scaled, (self.engine.screen.get_width() // 2 - 350, self.engine.screen.get_height() // 2 - 350))
+
+        max_height = 350
+        max_width = 350
+        cell_height = max_height // len(self.map)
+        cell_width = max_width // len(self.map[0])
+
+        if(cell_height < cell_width):
+            offset_x = self.engine.screen.get_width() / 2 - (len(self.map[0]) * cell_height) / 2
+            offset_y = self.engine.screen.get_height() / 2 - (len(self.map) * cell_height) / 2
+        else:
+            offset_x = self.engine.screen.get_width() / 2 - (len(self.map[0]) * cell_width) / 2
+            offset_y = self.engine.screen.get_height() / 2 - (len(self.map) * cell_width) / 2
+
+        offset_y -= 30
+
+        cell_height = min(cell_height, cell_width)
+
+        for y in range(len(self.map)):
+            for x in range(len(self.map[y])):
+                if self.map[y][x] == 1:
+                    continue
+                color = self.engine.config.black  # Default to black for 0
+                self.pygame.draw.rect(self.engine.screen, color, (offset_x + x * cell_height, offset_y + y * cell_height, cell_height, cell_height)) 
 
     def draw_keyboard_legend(self):
             gray = (150, 150, 150, 168)  
@@ -136,8 +170,8 @@ class Maze(Page):
             item.Y = y
 
         for item in self.items:
-            item.X = item.X * self.cellsize + self.cellsize / 2
-            item.Y = item.Y * self.cellsize + self.cellsize / 2
+            item.X = item.X * self.engine.config.cellsize + self.engine.config.cellsize / 2
+            item.Y = item.Y * self.engine.config.cellsize + self.engine.config.cellsize / 2
         
     def start_game(self):
         startX = random.randint(0, self.engine.mapX)
@@ -153,25 +187,28 @@ class Maze(Page):
         self.start = [startX * 2 + 1, startY * 2 + 1]
         self.end = [targetX * 2 + 1, targetY * 2 + 1]    
 
-        targetX = (targetX * 2 + 1) * self.cellsize + self.cellsize / 2
-        targetY = (targetY * 2 + 1) * self.cellsize + self.cellsize / 2
+        targetX = (targetX * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
+        targetY = (targetY * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
 
-        self.engine.target = Target(targetX, targetY, self.engine.config.obj_radius) 
+        self.engine.target = Target(targetX, targetY, self.engine.config) 
         self.target = self.engine.target
         self.target.open = False
 
-        self.player.X = (startX * 2 + 1) * self.cellsize + self.cellsize / 2
-        self.player.Y = (startY * 2 + 1) * self.cellsize + self.cellsize / 2
+        self.player.X = (startX * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
+        self.player.Y = (startY * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
         
     def draw_maze(self):
         for y in range(len(self.map)):
             for x in range(len(self.map[0])):              
-                    renderx = (x * self.cellsize - self.player.X + self.engine.screen.get_width() // 2)
-                    rendery = (y * self.cellsize - self.player.Y + self.engine.screen.get_height() // 2)
-                    if(renderx + self.cellsize < 0 or rendery + self.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+                    renderx = (x * self.engine.config.cellsize - self.player.X + self.engine.screen.get_width() // 2)
+                    rendery = (y * self.engine.config.cellsize - self.player.Y + self.engine.screen.get_height() // 2)
+                    if(renderx + self.engine.config.cellsize < 0 or rendery + self.engine.config.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
                         continue
-                    self.screen.blit(self.tilemap[y][x] if self.map[y][x] == 0 else self.engine.floor, (renderx, rendery))
-                    # self.pygame.draw.rect(self.engine.screen, self.engine.config.light_gray, (renderx, rendery, self.cellsize, self.cellsize))
+                    sprite = self.tilemap[y][x] if self.map[y][x] == 0 else self.engine.floor
+                    scaled = self.pygame.transform.scale(sprite, (self.engine.config.cellsize, self.engine.config.cellsize))
+                    self.screen.blit(scaled, (renderx, rendery))
+                    # self.pygame.draw.rect(self.engine.screen, self.engine.config.light_gray, (renderx, rendery, self.engine.config.cellsize, self.engine.config.cellsize))
+
     def draw_items_overlay(self):
         dark_gray = (60, 60, 60, 68)  
         black = (20, 20, 20, 128)
@@ -182,7 +219,7 @@ class Maze(Page):
 
         offset_x = base_x + 10
 
-        overlay = self.pygame.Surface((210, 100), self.pygame.SRCALPHA)
+        overlay = self.pygame.Surface((380, 100), self.pygame.SRCALPHA)
         overlay.fill(black)  
         self.engine.screen.blit(overlay, (base_x - 5, base_y))  
 
@@ -192,11 +229,11 @@ class Maze(Page):
             renderx = offset_x
             rendery = base_y + 10
             offset_x += 80 + 10
-            item_sprite = item.texture.convert_alpha()
+            item_sprite = item.texture
             scaled = self.pygame.transform.scale(item_sprite, (80, 80))
             self.screen.blit(scaled, (renderx, rendery))
             if(item.selected):
-                sel_sprite = self.engine.selected_sprite.convert_alpha()
+                sel_sprite = self.engine.selected_sprite
                 scaled = self.pygame.transform.scale(sel_sprite, (80, 80))
                 self.screen.blit(scaled, (renderx, rendery))
 
@@ -206,35 +243,39 @@ class Maze(Page):
                 continue
             renderx = (item.X - self.player.X + self.engine.screen.get_width() // 2)
             rendery = (item.Y - self.player.Y + self.engine.screen.get_height() // 2)
-            if(renderx + self.cellsize < 0 or rendery + self.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+            if(renderx + self.engine.config.cellsize < 0 or rendery + self.engine.config.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
                 continue
             sprite = item.texture.convert_alpha()
-            scaled = self.pygame.transform.scale(sprite, (item.R * 2, item.R * 2))
-            self.screen.blit(scaled, (renderx - item.R, rendery - item.R))
+            radius = item.R()
+            scaled = self.pygame.transform.scale(sprite, (radius * 2, radius * 2))
+            self.screen.blit(scaled, (renderx - radius, rendery - radius))
 
     def draw_target(self):
         renderx = (self.target.X - self.player.X + self.engine.screen.get_width() // 2)
         rendery = (self.target.Y - self.player.Y + self.engine.screen.get_height() // 2)
-        if(renderx + self.target.R < 0 or rendery + self.target.R < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+        tradius = self.target.R()
+        if(renderx + tradius < 0 or rendery + tradius < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
             return
         sprite = self.target.sprites[self.target.open].convert_alpha()
-        scaled = self.pygame.transform.scale(sprite, (self.target.R * 2, self.target.R * 2))
-        self.screen.blit(scaled, (renderx - self.target.R, rendery - self.target.R))
+        scaled = self.pygame.transform.scale(sprite, (tradius * 2, tradius * 2))
+        self.screen.blit(scaled, (renderx - tradius, rendery - tradius))
 
     def draw_player(self):
         sprite = self.player.sprites[self.player.last_dir][0 if not self.player.moving else int((self.pygame.time.get_ticks() // 100)) % 4].convert_alpha()
-        scaled = self.pygame.transform.scale(sprite, (self.player.R * 2, self.player.R * 2))
-        self.screen.blit(scaled, (self.engine.screen.get_width() // 2 - self.player.R, self.engine.screen.get_height() // 2 - self.player.R))
+        pradius = self.player.R()
+        scaled = self.pygame.transform.scale(sprite, (pradius * 2, pradius * 2))
+        self.screen.blit(scaled, (self.engine.screen.get_width() // 2 - pradius, self.engine.screen.get_height() // 2 - pradius))
 
     def draw_trails(self):
+        radius = self.player.R()
         for trail in self.trails:
             x = trail[0]
             y = trail[1]
             renderx = (x - self.player.X + self.engine.screen.get_width() // 2)
             rendery = (y - self.player.Y + self.engine.screen.get_height() // 2)
-            if(renderx + self.cellsize < 0 or rendery + self.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
+            if(renderx + self.engine.config.cellsize < 0 or rendery + self.engine.config.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
                 continue
-            self.screen.blit(self.engine.paint, (renderx - self.player.R, rendery - self.player.R))
+            self.screen.blit(self.engine.paint, (renderx - radius, rendery - radius))
 
     def move_player(self):
         keys = self.pygame.key.get_pressed()
@@ -256,26 +297,27 @@ class Maze(Page):
         newX = self.player.X + dir[0] * self.player.speed
         newY = self.player.Y + dir[1] * self.player.speed
 
-        left = newX - self.player.R
-        right = newX + self.player.R
-        top = newY - self.player.R
-        bottom = newY + self.player.R
+        left = newX - self.player.R()
+        right = newX + self.player.R()
+        top = newY - self.player.R()
+        bottom = newY + self.player.R()
 
-        if(left // self.cellsize < 0 or top // self.cellsize < 0 or right // self.cellsize >= len(self.map[0]) or bottom // self.cellsize >= len(self.map)):
+        if(left // self.engine.config.cellsize < 0 or top // self.engine.config.cellsize < 0 or right // self.engine.config.cellsize >= len(self.map[0]) or bottom // self.engine.config.cellsize >= len(self.map)):
             return False
-        if(self.map[int(bottom // self.cellsize)][int(right // self.cellsize)] == 0 or 
-           self.map[int(top // self.cellsize)]   [int(left // self.cellsize)]  == 0 or 
-           self.map[int(top // self.cellsize)]   [int(right // self.cellsize)] == 0 or 
-           self.map[int(bottom // self.cellsize)][int(left // self.cellsize)]  == 0):
+        if(self.map[int(bottom // self.engine.config.cellsize)][int(right // self.engine.config.cellsize)] == 0 or 
+           self.map[int(top // self.engine.config.cellsize)]   [int(left // self.engine.config.cellsize)]  == 0 or 
+           self.map[int(top // self.engine.config.cellsize)]   [int(right // self.engine.config.cellsize)] == 0 or 
+           self.map[int(bottom // self.engine.config.cellsize)][int(left // self.engine.config.cellsize)]  == 0):
             return False
         
         if(self.is_within_target_range([newX, newY]) and self.target.open):
             self.engine.page = self.engine.swap_to_score(self.pygame.time.get_ticks(), self.map, self.end, self.start)
 
+        iradius = self.player.R()
         for item in self.items:
             if(item.picked_up):
                 continue
-            if((newX - item.X) * (newX - item.X) + (newY - item.Y) * (newY - item.Y) < (self.player.R + item.R) * (self.player.R + item.R)):
+            if((newX - item.X) * (newX - item.X) + (newY - item.Y) * (newY - item.Y) < (iradius + iradius) * (iradius + iradius)):
                 item.picked_up = True
                 self.picked_up_items.append(item)
                 if(not self.any_items_selected()):
@@ -285,7 +327,7 @@ class Maze(Page):
         return True
     
     def any_items_selected(self):
-        for item in self.items:
+        for item in self.picked_up_items:
             if(item.selected):
                 return True
         return False
@@ -313,18 +355,58 @@ class Maze(Page):
 
     def use_item(self, item):
         if(isinstance(item, Energy_Drink)):
-            self.player.speed += 2
+            self.player.speed += self.player.speed / 3
             return True
         if(isinstance(item, Key)):
             if(self.is_within_target_range([self.player.X, self.player.Y])):
                 self.target.open = True
                 return True
+        if(isinstance(item, Magnifying_Glass)):
+            self.being_recalc()
+            self.engine.config.cellsize = 200
+            self.engine.config.obj_radius = 36
+            self.finish_recalc()
+            return True
+        if(isinstance(item, Maze_Map)):
+            if(item.is_in_use):
+                self.draw_mini_map = False
+                item.is_in_use = False
+            else:
+                self.draw_mini_map = True
+                item.is_in_use = True
+            return False
         return False
     
     def is_within_target_range(self, player_coords):
-        return (player_coords[0] - self.target.X) * (player_coords[0] - self.target.X) + (player_coords[1] - self.target.Y) * (player_coords[1] - self.target.Y) + 64 < (self.player.R + self.target.R) * (self.player.R + self.target.R)
+        pradius = self.player.R()
+        tradius = self.target.R()
+        return (player_coords[0] - self.target.X) * (player_coords[0] - self.target.X) + (player_coords[1] - self.target.Y) * (player_coords[1] - self.target.Y) + 64 < (pradius + tradius) * (pradius + tradius)
 
+    def being_recalc(self):
+        self.player.X = (self.player.X - self.engine.config.cellsize / 2) / self.engine.config.cellsize
+        self.player.Y = (self.player.Y - self.engine.config.cellsize / 2) / self.engine.config.cellsize
 
+        self.target.X = (self.target.X - self.engine.config.cellsize / 2) / self.engine.config.cellsize
+        self.target.Y = (self.target.Y - self.engine.config.cellsize / 2) / self.engine.config.cellsize
+
+        self.player.speed = self.engine.config.cellsize / self.player.speed
+
+        for item in self.items:
+            item.X = (item.X - self.engine.config.cellsize / 2) / self.engine.config.cellsize
+            item.Y = (item.Y - self.engine.config.cellsize / 2) / self.engine.config.cellsize
+
+    def finish_recalc(self):
+        self.player.X = self.player.X * self.engine.config.cellsize + self.engine.config.cellsize / 2
+        self.player.Y = self.player.Y * self.engine.config.cellsize + self.engine.config.cellsize / 2
+
+        self.target.X = self.target.X * self.engine.config.cellsize + self.engine.config.cellsize / 2
+        self.target.Y = self.target.Y * self.engine.config.cellsize + self.engine.config.cellsize / 2
+
+        for item in self.items:
+            item.X = item.X * self.engine.config.cellsize + self.engine.config.cellsize / 2
+            item.Y = item.Y * self.engine.config.cellsize + self.engine.config.cellsize / 2
+
+        self.player.speed = self.engine.config.cellsize / self.player.speed
     
     def handle_event(self, event):
         if(event.type == self.pygame.KEYDOWN):
@@ -341,6 +423,14 @@ class Maze(Page):
                 self.select_next_item()
             if(event.key == self.pygame.K_f):
                 self.use_selected_item()
+
+            if(event.key == self.pygame.K_r):
+                self.being_recalc()
+                self.engine.config.cellsize -= 5
+                self.engine.config.obj_radius -= 1
+                self.finish_recalc()
+                print("Cellsize: " + str(self.engine.config.cellsize))
+                print("Radius: " + str(self.engine.config.obj_radius))
 
             if(event.key == self.pygame.K_ESCAPE):
                 self.engine.page = self.engine.swap_to_main_menu()

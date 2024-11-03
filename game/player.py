@@ -1,13 +1,20 @@
 import pygame
 
-class Player:
-    def __init__(self, name, speed, radius):
+class ConfigObjectDrawable:
+    def __init__(self, config):
+        self.config = config
+
+    def R(self):
+        return self.config.obj_radius
+
+class Player(ConfigObjectDrawable):
+    def __init__(self, name, speed, config):
+        super().__init__(config)
         self.name = name
         self.color = (255, 0, 0)
         self.X = 1
         self.Y = 1
         self.speed = speed
-        self.R = radius
         self.last_dir = 2
         self.moving = False
         self.sprites = [
@@ -42,11 +49,11 @@ class Player:
         self.Y += dir[1] * self.speed
         self.last_dir = lastdir
 
-class Target:
-    def __init__(self, X, Y, R):
+class Target(ConfigObjectDrawable):
+    def __init__(self, X, Y, config):
+        super().__init__(config)
         self.X = X
         self.Y = Y
-        self.R = R
         self.open = 1
         self.sprites = [ 
             pygame.image.load('game/models/trapdoor_closed.png'),
