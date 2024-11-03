@@ -36,7 +36,8 @@ class MapGen(Page):
         bar_y = self.engine.screen.get_height() - 100 - bar_height // 2
 
         # Calculate the progress
-        progress = self.done / self.needed if self.needed > 0 else 0
+        prog = self.remain()
+        progress =  prog / self.needed if self.needed > 0 else 0
         fill_width = int(bar_width * progress)
 
         # Draw the loading bar background
@@ -79,7 +80,6 @@ class MapGen(Page):
         self.tilemap = [[0 for x in range(a_width)] for u in range(a_height)]
 
         #print(len(self.generated))
-        self.done = 0
         self.needed = width * height
 
         targetX = random.randint(0, width)
@@ -90,30 +90,27 @@ class MapGen(Page):
 
         targetswapped = False
 
-        while(self.done < self.needed - 1):
+        while(not self.done()):
             #print("main loop")
-            startX = random.randint(0, width - 1)
-            startY = random.randint(0, height - 1)
+            startX = random.randint(0, width)
+            startY = random.randint(0, height)
 
             startX = 2 * startX + 1
             startY = 2 * startY + 1
 
             while((startX == targetX and startY == targetY) or self.generated[startY][startX] == 1):
-                #print("starting point")
-                if(self.needed - self.done < 4):
+                if(self.needed - self.remain() < 4):
                     for y in range(0, height):
                         for x in range(0, width):
                             if(self.generated[2 * y + 1][2 * x + 1] == 0):
                                 startX = x
                                 startY = y
-                                #print("new start: " + str(startX) + ", " + str(startY))
-                else:                   
+                else:               
                     startX = random.randint(0, width)
                     startY = random.randint(0, height)
 
                 startX = 2 * startX + 1
                 startY = 2 * startY + 1
-                #print("ah start: " + str(startX) + ", " + str(startY))      
 
             self.generated[startY][startX] = 2
             stack = []
@@ -127,7 +124,7 @@ class MapGen(Page):
                 if(len(stack) >= max(width, height) and not targetswapped):
                     targetX = nextX
                     targetY = nextY
-                    targetswapped = True
+                    #targetswapped = True
                     break
 
                 nextmove = random.randint(0, 4)
@@ -175,9 +172,7 @@ class MapGen(Page):
                 for x in range(a_width):
                     if(self.generated[y][x] == 2):
                         self.generated[y][x] = 1
-            self.done += len(stack)
 
-        self.done += 1
 
         for y in range(0, a_height):
             for x in range(0, a_width):
@@ -200,7 +195,17 @@ class MapGen(Page):
             self.pygame.display.flip()
 
             self.pygame.time.delay(100)
-
+    
+    def done(self):
+        return self.remain() == self.needed
+    
+    def remain(self):
+        count = 0
+        for y in range(0, self.engine.mapY):
+            for x in range(0, self.engine.mapX):
+                if(self.generated[2 * y + 1][2 * x + 1] == 1):
+                    count += 1
+        return count
         
 
         

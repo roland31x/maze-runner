@@ -198,8 +198,8 @@ class Maze(Page):
         self.player.Y = (startY * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
         
     def draw_maze(self):
-        for y in range(len(self.map)):
-            for x in range(len(self.map[0])):              
+        for y in range(max(0, int(self.player.Y // self.engine.config.cellsize - 10)), min(len(self.map[0]), int(self.player.Y // self.engine.config.cellsize + 10))):
+            for x in range(max(0, int(self.player.X // self.engine.config.cellsize - 10)), min(len(self.map), int(self.player.X // self.engine.config.cellsize + 10))):              
                     renderx = (x * self.engine.config.cellsize - self.player.X + self.engine.screen.get_width() // 2)
                     rendery = (y * self.engine.config.cellsize - self.player.Y + self.engine.screen.get_height() // 2)
                     if(renderx + self.engine.config.cellsize < 0 or rendery + self.engine.config.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):
@@ -322,7 +322,6 @@ class Maze(Page):
                 self.picked_up_items.append(item)
                 if(not self.any_items_selected()):
                     item.selected = True
-                print("Picked up item")
 
         return True
     
@@ -423,14 +422,6 @@ class Maze(Page):
                 self.select_next_item()
             if(event.key == self.pygame.K_f):
                 self.use_selected_item()
-
-            if(event.key == self.pygame.K_r):
-                self.being_recalc()
-                self.engine.config.cellsize -= 5
-                self.engine.config.obj_radius -= 1
-                self.finish_recalc()
-                print("Cellsize: " + str(self.engine.config.cellsize))
-                print("Radius: " + str(self.engine.config.obj_radius))
 
             if(event.key == self.pygame.K_ESCAPE):
                 self.engine.page = self.engine.swap_to_main_menu()
