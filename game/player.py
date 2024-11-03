@@ -1,11 +1,6 @@
 import pygame
 
-class ConfigObjectDrawable:
-    def __init__(self, config):
-        self.config = config
-
-    def R(self):
-        return self.config.obj_radius
+from .drawable import ConfigObjectDrawable
 
 class Player(ConfigObjectDrawable):
     def __init__(self, name, speed, config):
