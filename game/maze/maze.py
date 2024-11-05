@@ -198,8 +198,8 @@ class Maze(Page):
         self.player.Y = (startY * 2 + 1) * self.engine.config.cellsize + self.engine.config.cellsize / 2
         
     def draw_maze(self):
-        for y in range(max(0, int(self.player.Y // self.engine.config.cellsize - 10)), min(len(self.map[0]), int(self.player.Y // self.engine.config.cellsize + 10))):
-            for x in range(max(0, int(self.player.X // self.engine.config.cellsize - 10)), min(len(self.map), int(self.player.X // self.engine.config.cellsize + 10))):              
+        for y in range(max(0, int(self.player.Y // self.engine.config.cellsize - 10)), min(len(self.map), int(self.player.Y // self.engine.config.cellsize + 10))):
+            for x in range(max(0, int(self.player.X // self.engine.config.cellsize - 10)), min(len(self.map[0]), int(self.player.X // self.engine.config.cellsize + 10))):              
                     renderx = (x * self.engine.config.cellsize - self.player.X + self.engine.screen.get_width() // 2)
                     rendery = (y * self.engine.config.cellsize - self.player.Y + self.engine.screen.get_height() // 2)
                     if(renderx + self.engine.config.cellsize < 0 or rendery + self.engine.config.cellsize < 0 or renderx > self.engine.screen.get_width() or rendery > self.engine.screen.get_height()):

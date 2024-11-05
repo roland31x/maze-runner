@@ -49,7 +49,7 @@ class Score(Page):
 
             offset_y += 20
 
-            self.pygame.draw.rect(self.engine.screen, self.engine.config.white, (offset_x - 5, offset_y - 5, cell_width * len(self.maze[0]) + 10, cell_height * len(self.maze) + 10))
+            self.pygame.draw.rect(self.engine.screen, self.engine.config.white, (offset_x - 5, offset_y - 5, cell_height * len(self.maze[0]) + 10, cell_height * len(self.maze) + 10))
 
             for y in range(len(self.maze)):
                 for x in range(len(self.maze[y])):
